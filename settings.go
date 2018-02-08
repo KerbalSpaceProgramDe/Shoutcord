@@ -26,10 +26,7 @@ var Settings = struct {
 	Channel string `yaml:"channel"`
 
 	// The API Endpoint that should receive the updates from discord
-	ShoutboxEndpoint string `yaml:"shoutbox-endpoint"`
-
-	// The local endpoint to bind to
-	LocalEndpoint string `yaml:"local-endpoint"`
+	Endpoint string `yaml:"endpoint"`
 
 }{}
 

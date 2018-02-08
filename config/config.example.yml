@@ -1,4 +1,3 @@
 token: ""
 channel: ""
-shoutbox-endpoint: ""
-local-endpoint: ":5025"
+endpoint: ""

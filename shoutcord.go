@@ -13,16 +13,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/kataras/iris"
-	"net/http"
+	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/cast"
+	"net/http"
+	"strings"
+	"time"
 )
 
 // The connection to the discord server
 var Discord *discordgo.Session
-
-// The http server controlling the endpoint
-var App *iris.Application
 
 /*
  The entrypoint for the shoutcord application.
@@ -55,14 +54,9 @@ func main() {
 	}
 	defer Discord.Close()
 
-	// Set up the endpoint
-	App := iris.New()
-
-	// Add the route
-	App.Post("/message", OnMessageReceived)
-
-	// Start listening
-	App.Run(iris.Addr(Settings.LocalEndpoint))
+	// Setup the polling scheduler
+	gocron.Every(1).Second().Do(CheckForNewMessages)
+	<- gocron.Start()
 
 }
 
@@ -70,8 +64,8 @@ func main() {
 // message is created on any channel that the autenticated bot has access to.
 func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	// Ignore all messages posted by bots, including ourselves
-	if m.Author.Bot {
+	// Ignore all messages posted by ourselves
+	if m.Author.ID == Discord.State.User.ID {
 		return
 	}
 
@@ -85,7 +79,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// Only transmit normal message, no fancy things
+	// Only transmit normal messages, no fancy things
 	if m.Type != discordgo.MessageTypeDefault {
 		return
 	}
@@ -97,13 +91,14 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// The message was valid, get the content and post it to the endpoint
-	values := iris.Map {
+	values := map[string]interface{} {
+		"userID": 0,
 		"username": m.Author.Username,
-		"timestamp": t.Unix(),
+		"time": t.Unix(),
 		"message": m.ContentWithMentionsReplaced(),
 	}
 	jsonValue, _ := json.Marshal(values)
-	_, err = http.Post(Settings.ShoutboxEndpoint, "application/json", bytes.NewBuffer(jsonValue))
+	_, err = http.Post(Settings.Endpoint, "application/json", bytes.NewBuffer(jsonValue))
 
 	// If the endpoint had an error, quit
 	if err != nil {
@@ -112,36 +107,50 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 }
 
-// This function will be called when a new message was created in the shoutbox
-func OnMessageReceived(ctx iris.Context) {
+// The current time. Will be updated every time the shoutbox is polled for new messages
+var timestamp = time.Now().Unix()
 
-	// Extract the JSON object from the request
-	var values map[string]interface{}
-	err := ctx.ReadJSON(&values)
+// This function will check for new shoutbox messages every second
+func CheckForNewMessages() {
 
-	// Was there any error?
+	// Request data
+	resp, err := http.Get(Settings.Endpoint + "?fromDiscord=0&since_time=" + cast.ToString(timestamp))
+
+	// If the endpoint had an error, quit
 	if err != nil {
 		panic(err)
 	}
 
-	// Fetch the data from the request
-	// We don't need timestamp here, as we create our own one
-	username, err := cast.ToStringE(values["username"])
-	if err != nil {
-		panic(err)
-	}
-	message, err := cast.ToStringE(values["message"])
-	if err != nil {
-		panic(err)
+	// Decode the request body
+	var values []map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&values)
+
+	// Iterate over new messages
+	for _,item := range values {
+
+		// Fetch the data from the message
+		// We don't need timestamp here, as we create our own one
+		username, err := cast.ToStringE(item["username"])
+		if err != nil {
+			panic(err)
+		}
+		message, err := cast.ToStringE(item["message"])
+		if err != nil {
+			panic(err)
+		}
+
+		// Remove BBCode from the message
+		message = strings.Replace(message, "[url]", "", 0)
+		message = strings.Replace(message, "[/url]", "", 0)
+
+		// Send a new message with the according data
+		_, err = Discord.ChannelMessageSend(Settings.Channel, "`" + username + ":` " + message)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	// Send a new message with the according data
-	_, err = Discord.ChannelMessageSend(Settings.Channel, "`" + username + ":` " + message)
-	if err != nil {
-		panic(err)
-	}
-
-	// Answer the request
-	ctx.WriteString("Ok")
+	// Update the timestamp
+	timestamp = time.Now().Unix()
 
 }
