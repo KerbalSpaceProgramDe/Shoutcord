@@ -123,7 +123,10 @@ func CheckForNewMessages() {
 
 	// Decode the request body
 	var values []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&values)
+	err = json.NewDecoder(resp.Body).Decode(&values)
+	if err != nil {
+		panic(err)
+	}
 
 	// Iterate over new messages
 	for _,item := range values {
