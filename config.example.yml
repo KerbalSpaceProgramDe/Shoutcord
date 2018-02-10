@@ -1,0 +1,8 @@
+# The access token for the bot account on Discord
+token: ""
+
+# The ID of the channel that should be synced with the Shoutbox.
+channel: ""
+
+# The address of the kerbal.de API
+endpoint: ""

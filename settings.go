@@ -41,9 +41,9 @@ func LoadSettings() {
  Loads the settings from a configuration file
  */
 func LoadFromConfigFile(data interface{}, configFile string) {
-	log.Printf("* Loading configuration file: config/%s", configFile)
+	log.Printf("* Loading configuration file: %s", configFile)
 	os.Setenv("CONFIGOR_ENV_PREFIX", "SHOUTCORD")
-	err := configor.Load(data, "config/" + configFile)
+	err := configor.Load(data, configFile)
 	if err != nil {
 		log.Fatalf("* Failed to parse configuration file: %s", err)
 	}

@@ -14,9 +14,13 @@
 .glide/
 
 # Config File
-config/config.yml
+config.yml
 
 # Vendor
 vendor/
+
+# Build output
 bin/
+
+# Goland project files
 .idea/

@@ -98,7 +98,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		"message": m.ContentWithMentionsReplaced(),
 	}
 	jsonValue, _ := json.Marshal(values)
-	_, err = http.Post(Settings.Endpoint, "application/json", bytes.NewBuffer(jsonValue))
+	_, err = http.Post(Settings.Endpoint + "/shoutbox", "application/json", bytes.NewBuffer(jsonValue))
 
 	// If the endpoint had an error, quit
 	if err != nil {
@@ -114,7 +114,7 @@ var timestamp = time.Now().Unix()
 func CheckForNewMessages() {
 
 	// Request data
-	resp, err := http.Get(Settings.Endpoint + "?fromDiscord=0&since_time=" + cast.ToString(timestamp))
+	resp, err := http.Get(Settings.Endpoint + "/shoutbox?fromAPI=0&since_time=" + cast.ToString(timestamp))
 
 	// If the endpoint had an error, quit
 	if err != nil {
