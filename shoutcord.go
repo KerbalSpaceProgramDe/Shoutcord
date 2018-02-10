@@ -114,7 +114,7 @@ var timestamp = time.Now().Unix()
 func CheckForNewMessages() {
 
 	// Request data
-	resp, err := http.Get(Settings.Endpoint + "/shoutbox?fromAPI=0&since_time=" + cast.ToString(timestamp))
+	resp, err := http.Get(Settings.Endpoint + "/shoutbox?fromApi=0&since_time=" + cast.ToString(timestamp))
 
 	// If the endpoint had an error, quit
 	if err != nil {
