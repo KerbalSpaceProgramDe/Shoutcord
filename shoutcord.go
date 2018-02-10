@@ -15,7 +15,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/cast"
+	"mvdan.cc/xurls"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -84,6 +86,19 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// Get a list of all attachments
+	attachments := ""
+	for _,item := range m.Attachments {
+		attachments = attachments + "[url]" + item.URL + "[/url] "
+	}
+
+	// Detect URLs
+	message := m.ContentWithMentionsReplaced()
+	matches := removeDuplicatesUnordered(xurls.Strict.FindAllString(message, -1))
+	for _,item := range matches {
+		message = strings.Replace(message, item, "[url]" + item + "[/url]", -1)
+	}
+
 	// Obtain the timestamp of the message
 	t, err := m.Timestamp.Parse()
 	if err != nil {
@@ -95,7 +110,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		"userID": 0,
 		"username": m.Author.Username,
 		"time": t.Unix(),
-		"message": m.ContentWithMentionsReplaced(),
+		"message": message + " " + attachments,
 	}
 	jsonValue, _ := json.Marshal(values)
 	_, err = http.Post(Settings.Endpoint + "/shoutbox", "application/json", bytes.NewBuffer(jsonValue))
@@ -109,6 +124,9 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // The current time. Will be updated every time the shoutbox is polled for new messages
 var timestamp = time.Now().Unix()
+
+// The regex that is used to detect links in the shoutbox messages
+var re = regexp.MustCompile(`\[url(?:=(?:["']?)([^"'\]]+)(?:["']?))?]([^\[]+)\[\/url\]`)
 
 // This function will check for new shoutbox messages every second
 func CheckForNewMessages() {
@@ -132,7 +150,6 @@ func CheckForNewMessages() {
 	for _,item := range values {
 
 		// Fetch the data from the message
-		// We don't need timestamp here, as we create our own one
 		username, err := cast.ToStringE(item["username"])
 		if err != nil {
 			panic(err)
@@ -141,19 +158,58 @@ func CheckForNewMessages() {
 		if err != nil {
 			panic(err)
 		}
+		mTimestamp, err := cast.ToInt64E(item["time"])
+		if err != nil {
+			panic(err)
+		}
 
 		// Remove BBCode from the message
-		message = strings.Replace(message, "[url]", "", 0)
-		message = strings.Replace(message, "[/url]", "", 0)
+		res := re.FindAllStringSubmatch(message, -1)
+		for _,item := range res {
+			link := item[1]
+			desc := item[2]
+
+			// If the link is empty, it was stored in the description value
+			if link == "" {
+				link = desc
+				desc = ""
+			}
+
+			// If a description exists, this is a relative link
+			if strings.HasPrefix(desc, "@") {
+				message = strings.Replace(message, item[0], desc, -1)
+			} else {
+				message = strings.Replace(message, item[0], link, -1)
+			}
+		}
 
 		// Send a new message with the according data
 		_, err = Discord.ChannelMessageSend(Settings.Channel, "`" + username + ":` " + message)
 		if err != nil {
 			panic(err)
 		}
+
+		// Update the timestamp
+		if mTimestamp > timestamp {
+			timestamp = mTimestamp
+		}
 	}
 
-	// Update the timestamp
-	timestamp = time.Now().Unix()
+}
 
+// Taken from: https://www.dotnetperls.com/duplicates-go
+func removeDuplicatesUnordered(elements []string) []string {
+	encountered := map[string]bool{}
+
+	// Create a map of all unique elements.
+	for v:= range elements {
+		encountered[elements[v]] = true
+	}
+
+	// Place all keys from the map into a slice.
+	result := []string{}
+	for key, _ := range encountered {
+		result = append(result, key)
+	}
+	return result
 }

@@ -1,5 +1,5 @@
-hash: 0b5a9b389a096302bd5fb0cce29ecae6c4fdf769dbe9b51a0b529f27c3133335
-updated: 2018-02-08T20:58:20.726616409+01:00
+hash: 4cfccf01198a3647fec5e7b5095a0fa01fd40abcfa9d0a59f50bd18742ec1f6c
+updated: 2018-02-10T22:47:25.443155401+01:00
 imports:
 - name: github.com/BurntSushi/toml
   version: a368813c5e648fee92e5f6c30e3944ff9d5e8895
@@ -21,4 +21,6 @@ imports:
   - salsa20/salsa
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
+- name: mvdan.cc/xurls
+  version: d315b61cf6727664f310fa87b3197e9faf2a8513
 testImports: []
