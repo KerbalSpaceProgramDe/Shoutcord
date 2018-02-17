@@ -6,3 +6,6 @@ channel: ""
 
 # The address of the kerbal.de API
 endpoint: ""
+
+# The access token for the kerbal.de API
+api-key: ""

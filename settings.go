@@ -28,6 +28,9 @@ var Settings = struct {
 	// The API Endpoint that should receive the updates from discord
 	Endpoint string `yaml:"endpoint"`
 
+	// The access token for the kerbal.de API
+	ApiKey string `yaml:"api-key"`
+
 }{}
 
 /*

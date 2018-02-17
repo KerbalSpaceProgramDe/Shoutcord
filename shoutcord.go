@@ -15,7 +15,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jasonlvhit/gocron"
 	"github.com/spf13/cast"
-	"mvdan.cc/xurls"
+    "io"
+    "mvdan.cc/xurls"
 	"net/http"
 	"regexp"
 	"strings"
@@ -113,13 +114,13 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// The message was valid, get the content and post it to the endpoint
 	values := map[string]interface{} {
-		"userID": 0,
+        "discordId": cast.ToInt(m.Author.ID),
 		"username": m.Author.Username,
 		"time": t.Unix(),
 		"message": message + " " + attachments,
 	}
 	jsonValue, _ := json.Marshal(values)
-	_, err = http.Post(Settings.Endpoint + "/shoutbox", "application/json", bytes.NewBuffer(jsonValue))
+	_, err = post(Settings.Endpoint + "/shoutbox", "application/json", bytes.NewBuffer(jsonValue), Settings.ApiKey)
 
 	// If the endpoint had an error, quit
 	if err != nil {
@@ -138,7 +139,7 @@ var links = regexp.MustCompile(`\[url(?:=(?:["']?)([^"'\]]+)(?:["']?))?]([^\[]+)
 func CheckForNewMessages() {
 
 	// Request data
-	resp, err := http.Get(Settings.Endpoint + "/shoutbox?fromApi=0&since_time=" + cast.ToString(timestamp))
+	resp, err := get(Settings.Endpoint + "/shoutbox?fromApi=0&since_time=" + cast.ToString(timestamp), Settings.ApiKey)
 
 	// If the endpoint had an error, quit
 	if err != nil {
@@ -146,11 +147,12 @@ func CheckForNewMessages() {
 	}
 
 	// Decode the request body
-	var values []map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&values)
+	var tempValues map[string][]map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&tempValues)
 	if err != nil {
 		panic(err)
 	}
+	values := tempValues["data"]
 
 	// Iterate over new messages
 	for _,item := range values {
@@ -218,4 +220,19 @@ func removeDuplicatesUnordered(elements []string) []string {
 		result = append(result, key)
 	}
 	return result
+}
+
+func get(url string, key string) (resp *http.Response, err error) {
+    client := &http.Client{}
+    req, err := http.NewRequest("GET", url, nil)
+    req.Header.Set("X-Authorization", key)
+    return client.Do(req)
+}
+
+func post(url string, bodyType string, data io.Reader, key string) (resp *http.Response, err error) {
+     client := &http.Client{}
+     req, err := http.NewRequest("POST", url, data)
+     req.Header.Set("Content-Type", bodyType)
+     req.Header.Set("X-Authorization", key)
+     return client.Do(req)
 }
