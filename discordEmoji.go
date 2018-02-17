@@ -1,4 +1,12 @@
-package main
+/*
+ Shoutcord
+ Bridging Modern Shoutbox and Discord
+
+ Licensed under the Terms of the MIT License
+ Copyright (c) 2018 KerbalSpaceProgram.de, Dorian Stoll
+ */
+
+ package main
 
 import "strings"
 

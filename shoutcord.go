@@ -96,7 +96,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Detect URLs and replace Emojis with their text codes
-	message := EscapeEmoji(m.ContentWithMentionsReplaced())
+	message := DiscordToForumEmoji(EscapeEmoji(m.ContentWithMentionsReplaced()))
 	matches := removeDuplicatesUnordered(xurls.Strict.FindAllString(message, -1))
 	for _,item := range matches {
 		message = strings.Replace(message, item, "[url]" + item + "[/url]", -1)
@@ -190,6 +190,9 @@ func CheckForNewMessages() {
 				message = strings.Replace(message, item[0], link, -1)
 			}
 		}
+
+		// Replace Emojis
+		message = ForumToDiscordEmoji(message)
 
 		// Send a new message with the according data
 		_, err = Discord.ChannelMessageSend(Settings.Channel, "`" + username + ":` " + message)
