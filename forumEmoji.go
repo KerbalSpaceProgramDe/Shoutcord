@@ -8,7 +8,10 @@
 
  package main
 
-import "strings"
+import (
+    "fmt"
+    "strings"
+)
 
 // A list of all forum emojis and their corresponding discord emojis
 var forumEmoji = map[string]string {
@@ -74,15 +77,25 @@ var forumEmoji = map[string]string {
 var forumEmojiSwapped = SwapMap(discordEmoji)
 
 func DiscordToForumEmoji(message string) string {
+    fmt.Println(message)
     for emoji := range forumEmojiSwapped {
         message = strings.Replace(message, emoji, forumEmojiSwapped[emoji], -1)
     }
+    fmt.Println(message)
     return message
 }
 
 func ForumToDiscordEmoji(message string) string {
+    fmt.Println(message)
     for emoji := range forumEmoji {
-        message = strings.Replace(message, emoji, forumEmoji[emoji], -1)
+        fmt.Println(emoji)
+        for _,item := range Guild.Emojis {
+            fmt.Println(item.Name)
+            if forumEmoji[emoji] == ":" + item.Name + ":" {
+                message  = strings.Replace(message, emoji, "<" + forumEmoji[emoji] + item.ID + ">", -1)
+            }
+        }
     }
+    fmt.Println(message)
     return message
 }

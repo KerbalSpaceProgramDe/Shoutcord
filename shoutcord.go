@@ -18,13 +18,14 @@ import (
     "io"
     "mvdan.cc/xurls"
 	"net/http"
-	"regexp"
+    "regexp"
 	"strings"
 	"time"
 )
 
 // The connection to the discord server
 var Discord *discordgo.Session
+var Guild *discordgo.Guild
 
 /*
  The entrypoint for the shoutcord application.
@@ -56,6 +57,19 @@ func main() {
 		return
 	}
 	defer Discord.Close()
+
+	// Fetch the channel we are in
+	channel, err := Discord.Channel(Settings.Channel)
+	if err != nil {
+	    panic(err)
+    }
+
+    // Fetch the server of the channel
+    guild, err := Discord.Guild(channel.GuildID)
+    if err != nil {
+        panic(err)
+    }
+    Guild = guild
 
 	// Setup the polling scheduler
 	gocron.Every(1).Second().Do(CheckForNewMessages)
@@ -96,7 +110,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Detect URLs and replace Emojis with their text codes
-	message := DiscordToForumEmoji(EscapeEmoji(m.ContentWithMentionsReplaced()))
+	message := EscapeEmoji(m.ContentWithMentionsReplaced())
 	matches := removeDuplicatesUnordered(xurls.Strict.FindAllString(message, -1))
 	for _,item := range matches {
 		message = strings.Replace(message, item, "[url]" + item + "[/url]", -1)
@@ -105,6 +119,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     for _,item := range res {
         message = strings.Replace(message, item[0], ":" + item[1] + ":", -1)
     }
+    message = DiscordToForumEmoji(message)
 
 	// Obtain the timestamp of the message
 	t, err := m.Timestamp.Parse()
