@@ -62,6 +62,8 @@ func main() {
 
 }
 
+var emoji = regexp.MustCompile(`<:([^:]+):\d+>`)
+
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the autenticated bot has access to.
 func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -92,12 +94,16 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		attachments = attachments + "[url]" + item.URL + "[/url] "
 	}
 
-	// Detect URLs
-	message := m.ContentWithMentionsReplaced()
+	// Detect URLs and replace Emojis with their text codes
+	message := EscapeEmoji(m.ContentWithMentionsReplaced())
 	matches := removeDuplicatesUnordered(xurls.Strict.FindAllString(message, -1))
 	for _,item := range matches {
 		message = strings.Replace(message, item, "[url]" + item + "[/url]", -1)
 	}
+    res := emoji.FindAllStringSubmatch(message, -1)
+    for _,item := range res {
+        message = strings.Replace(message, item[0], ":" + item[1] + ":", -1)
+    }
 
 	// Obtain the timestamp of the message
 	t, err := m.Timestamp.Parse()
@@ -126,7 +132,7 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 var timestamp = time.Now().Unix()
 
 // The regex that is used to detect links in the shoutbox messages
-var re = regexp.MustCompile(`\[url(?:=(?:["']?)([^"'\]]+)(?:["']?))?]([^\[]+)\[\/url\]`)
+var links = regexp.MustCompile(`\[url(?:=(?:["']?)([^"'\]]+)(?:["']?))?]([^\[]+)\[\/url\]`)
 
 // This function will check for new shoutbox messages every second
 func CheckForNewMessages() {
@@ -164,7 +170,7 @@ func CheckForNewMessages() {
 		}
 
 		// Remove BBCode from the message
-		res := re.FindAllStringSubmatch(message, -1)
+		res := links.FindAllStringSubmatch(message, -1)
 		for _,item := range res {
 			link := item[1]
 			desc := item[2]
