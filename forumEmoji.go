@@ -73,7 +73,7 @@ var forumEmoji = map[string]string {
     ":lichtgrün:": ":kerblightgreen:",
     ":lichtblau:": ":kerblightblue:",
 }
-var forumEmojiSwapped = SwapMap(discordEmoji)
+var forumEmojiSwapped = SwapMap(forumEmoji)
 
 func DiscordToForumEmoji(message string) string {
     for emoji := range forumEmojiSwapped {
