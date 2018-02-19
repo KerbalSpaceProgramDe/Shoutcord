@@ -19,11 +19,6 @@ import (
 var Discord *discordgo.Session
 
 /*
- The discord server we are active in
-*/
-var Guild *discordgo.Guild
-
-/*
  Load the config files and prepare the connection to discord
 */
 func init() {
@@ -52,19 +47,6 @@ func Run() {
 		panic(err)
 	}
 	defer Discord.Close()
-
-	// Fetch the channel we are in
-	channel, err := Discord.Channel(Settings.Channel)
-	if err != nil {
-		panic(err)
-	}
-
-	// Fetch the server of the channel
-	guild, err := Discord.Guild(channel.GuildID)
-	if err != nil {
-		panic(err)
-	}
-	Guild = guild
 
 	// Start the job scheduler
 	<-gocron.Start()

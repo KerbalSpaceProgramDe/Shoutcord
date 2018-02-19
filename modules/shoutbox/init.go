@@ -10,6 +10,7 @@ package shoutbox
 
 import (
 	"github.com/KerbalSpaceProgramDe/Shoutcord/app"
+	"github.com/bwmarrin/discordgo"
 	"github.com/jasonlvhit/gocron"
 )
 
@@ -24,6 +25,11 @@ var Settings = struct {
 	// The access token for the kerbal.de API
 	ApiKey string `yaml:"api-key"`
 }{}
+
+/*
+ The discord server we are active in
+*/
+var Guild *discordgo.Guild
 
 /*
  Register the modules functions
