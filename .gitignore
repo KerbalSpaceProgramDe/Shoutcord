@@ -15,6 +15,8 @@
 
 # Config File
 config.yml
+shoutbox.yml
+welcome.yml
 
 # Vendor
 vendor/

@@ -1,0 +1,18 @@
+# The channel that should receive the messages
+channel: ""
+
+# The message that is sent when a user joins the server.
+# {USERNAME} gets replaced with a mention of the user
+welcome-message: ""
+
+# A list of strings that get added to the welcome message randomly
+welcome-hints:
+- ""
+
+# The message that is sent when a user leaves the server
+# {USERNAME} gets replaced with the name of the user
+goodbye-message: ""
+
+# A list of strings that get added to the goodbye message randomly
+goodbye-hints:
+- ""

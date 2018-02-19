@@ -12,7 +12,8 @@ import (
 	"github.com/KerbalSpaceProgramDe/Shoutcord/app"
 
 	// Import modules
-	_ "github.com/KerbalSpaceProgramDe/Shoutcord/modules/shoutbox"
+	//_ "github.com/KerbalSpaceProgramDe/Shoutcord/modules/shoutbox"
+	_ "github.com/KerbalSpaceProgramDe/Shoutcord/modules/welcome"
 )
 
 /*

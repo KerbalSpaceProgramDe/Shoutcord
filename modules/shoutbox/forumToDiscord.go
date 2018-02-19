@@ -27,8 +27,8 @@ var shoutboxTimestamp = time.Now().Unix()
 */
 func checkForNewMessages() {
 	// Request data
-	resp, err := utils.GetHTTP(app.Settings.Endpoint+"/shoutbox?fromApi=0&since_time="+cast.ToString(shoutboxTimestamp),
-		app.Settings.ApiKey)
+	resp, err := utils.GetHTTP(Settings.Endpoint+"/shoutbox?fromApi=0&since_time="+cast.ToString(shoutboxTimestamp),
+		Settings.ApiKey)
 
 	// If the endpoint had an error, quit
 	if err != nil {
@@ -69,7 +69,7 @@ func checkForNewMessages() {
 		message = emoji.ForumToDiscordEmoji(message, app.Guild.Emojis)
 
 		// Send a new message with the according data
-		_, err = app.Discord.ChannelMessageSend(app.Settings.Channel, "`"+username+":` "+message)
+		_, err = app.Discord.ChannelMessageSend(Settings.Channel, "`"+username+":` "+message)
 		if err != nil {
 			panic(err)
 		}

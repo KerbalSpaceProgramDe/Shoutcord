@@ -9,9 +9,9 @@
 package app
 
 import (
-    "github.com/jinzhu/configor"
-    "log"
-    "os"
+	"github.com/jinzhu/configor"
+	"log"
+	"os"
 )
 
 /*
@@ -19,34 +19,25 @@ import (
 */
 var Settings = struct {
 
-    // The token for the bot user
-    Token string `yaml:"token"`
-
-    // The channel that should get synced with the shoutbox
-    Channel string `yaml:"channel"`
-
-    // The API Endpoint that should receive the updates from discord
-    Endpoint string `yaml:"endpoint"`
-
-    // The access token for the kerbal.de API
-    ApiKey string `yaml:"api-key"`
+	// The token for the bot user
+	Token string `yaml:"token"`
 }{}
 
 /*
  Loads the settings from the config file
 */
 func LoadSettings() {
-    LoadFromConfigFile(&Settings, "config.yml")
+	LoadFromConfigFile(&Settings, "config.yml")
 }
 
 /*
  Loads the settings from a configuration file
 */
 func LoadFromConfigFile(data interface{}, configFile string) {
-    log.Printf("* Loading configuration file: config/%s", configFile)
-    os.Setenv("CONFIGOR_ENV_PREFIX", "SHOUTCORD")
-    err := configor.Load(data, "config/"+configFile)
-    if err != nil {
-        log.Fatalf("* Failed to parse configuration file: %s", err)
-    }
+	log.Printf("* Loading configuration file: config/%s", configFile)
+	os.Setenv("CONFIGOR_ENV_PREFIX", "SHOUTCORD")
+	err := configor.Load(data, "config/"+configFile)
+	if err != nil {
+		log.Fatalf("* Failed to parse configuration file: %s", err)
+	}
 }
