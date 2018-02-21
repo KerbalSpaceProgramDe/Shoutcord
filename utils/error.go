@@ -22,7 +22,7 @@ func HandleError(err error) bool {
 	}
 	if err != nil {
 		log.Println(err)
-		return false
+		return true
 	}
-	return true
+	return false
 }
