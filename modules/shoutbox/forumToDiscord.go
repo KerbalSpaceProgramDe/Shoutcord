@@ -32,14 +32,14 @@ func checkForNewMessages() {
 
 		// Fetch the channel we are in
 		channel, err := app.Discord.Channel(Settings.Channel)
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 
 		// Fetch the server of the channel
 		guild, err := app.Discord.Guild(channel.GuildID)
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 		Guild = guild
 	}
@@ -49,8 +49,8 @@ func checkForNewMessages() {
 		Settings.ApiKey)
 
 	// If the endpoint had an error, quit
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 
 	// Decode the request body
@@ -58,8 +58,8 @@ func checkForNewMessages() {
 		Data []map[string]interface{} `json:"data"`
 	}
 	err = json.NewDecoder(resp.Body).Decode(&temp)
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 	values := temp.Data
 
@@ -68,16 +68,16 @@ func checkForNewMessages() {
 
 		// Fetch the data from the message
 		username, err := cast.ToStringE(item["username"])
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 		message, err := cast.ToStringE(item["message"])
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 		mTimestamp, err := cast.ToInt64E(item["time"])
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 
 		// Remove BBCodes from the message
@@ -88,8 +88,8 @@ func checkForNewMessages() {
 
 		// Send a new message with the according data
 		_, err = app.Discord.ChannelMessageSend(Settings.Channel, "`"+username+":` "+message)
-		if err != nil {
-			panic(err)
+		if utils.HandleError(err) {
+			return
 		}
 
 		// Update the timestamp

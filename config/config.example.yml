@@ -1,2 +1,5 @@
 # The access token for the bot account on Discord
 token: ""
+
+# Whether the bot should run in debug mode
+debug: false

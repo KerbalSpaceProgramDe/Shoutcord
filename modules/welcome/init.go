@@ -59,8 +59,8 @@ func onGuildMemberAdded(session *discordgo.Session, m *discordgo.GuildMemberAdd)
 
 	// Send the message
 	_, err := app.Discord.ChannelMessageSend(Settings.Channel, message)
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 }
 
@@ -77,7 +77,7 @@ func onGuildMemberRemoved(session *discordgo.Session, m *discordgo.GuildMemberRe
 
 	// Send the message
 	_, err := app.Discord.ChannelMessageSend(Settings.Channel, message)
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 }

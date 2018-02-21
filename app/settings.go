@@ -21,6 +21,9 @@ var Settings = struct {
 
 	// The token for the bot user
 	Token string `yaml:"token"`
+
+	// Whether the bot should run in debug mode
+	Debug bool `yaml:"debug"`
 }{}
 
 /*

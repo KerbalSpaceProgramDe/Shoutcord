@@ -58,8 +58,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Obtain the timestamp of the message
 	t, err := m.Timestamp.Parse()
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 
 	// The message was valid, get the content and post it to the endpoint
@@ -73,7 +73,7 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Settings.ApiKey)
 
 	// If the endpoint had an error, quit
-	if err != nil {
-		panic(err)
+	if utils.HandleError(err) {
+		return
 	}
 }
