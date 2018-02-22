@@ -24,6 +24,9 @@ var Settings = struct {
 
 	// Whether the bot should run in debug mode
 	Debug bool `yaml:"debug"`
+
+	// The host the ping-pong server should listen on
+	PingPongHost string `yaml:"ping-pong-host"`
 }{}
 
 /*

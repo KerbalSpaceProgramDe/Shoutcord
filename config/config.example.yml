@@ -3,3 +3,6 @@ token: ""
 
 # Whether the bot should run in debug mode
 debug: false
+
+# The host the ping-pong server should listen on
+ping-pong-host: "0.0.0.0:8080"
