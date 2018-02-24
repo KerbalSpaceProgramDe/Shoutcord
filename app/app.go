@@ -49,7 +49,7 @@ func Run() {
 	defer Discord.Close()
 
 	// Start the ping-pong server
-	ServePingPong(Settings.PingPongHost)
+	go ServePingPong(Settings.PingPongHost)
 
 	// Start the job scheduler
 	<-gocron.Start()
