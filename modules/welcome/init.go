@@ -51,6 +51,15 @@ func init() {
 */
 func onGuildMemberAdded(session *discordgo.Session, m *discordgo.GuildMemberAdd) {
 
+	// Check if the user joined the correct server
+	channel, err := app.Discord.Channel(Settings.Channel)
+	if utils.HandleError(err) {
+		return
+	}
+	if m.GuildID != channel.GuildID {
+		return
+	}
+
 	// Get the welcome message and format it
 	message := strings.Replace(Settings.WelcomeMessage, "{USERNAME}", m.User.Mention(), -1)
 
@@ -58,7 +67,7 @@ func onGuildMemberAdded(session *discordgo.Session, m *discordgo.GuildMemberAdd)
 	message += " " + Settings.WelcomeHints[utils.Random(0, len(Settings.WelcomeHints))]
 
 	// Send the message
-	_, err := app.Discord.ChannelMessageSend(Settings.Channel, message)
+	_, err = app.Discord.ChannelMessageSend(Settings.Channel, message)
 	if utils.HandleError(err) {
 		return
 	}
@@ -69,6 +78,15 @@ func onGuildMemberAdded(session *discordgo.Session, m *discordgo.GuildMemberAdd)
 */
 func onGuildMemberRemoved(session *discordgo.Session, m *discordgo.GuildMemberRemove) {
 
+	// Check if the user left the correct server
+	channel, err := app.Discord.Channel(Settings.Channel)
+	if utils.HandleError(err) {
+		return
+	}
+	if m.GuildID != channel.GuildID {
+		return
+	}
+
 	// Get the goodbye message and format it
 	message := strings.Replace(Settings.GoodbyeMessage, "{USERNAME}", m.User.Username, -1)
 
@@ -76,7 +94,7 @@ func onGuildMemberRemoved(session *discordgo.Session, m *discordgo.GuildMemberRe
 	message += " " + Settings.GoodbyeHints[utils.Random(0, len(Settings.GoodbyeHints))]
 
 	// Send the message
-	_, err := app.Discord.ChannelMessageSend(Settings.Channel, message)
+	_, err = app.Discord.ChannelMessageSend(Settings.Channel, message)
 	if utils.HandleError(err) {
 		return
 	}
