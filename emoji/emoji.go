@@ -23,7 +23,7 @@ var emojiRegex = regexp.MustCompile(`<[a]?:([^:]+):\d+>`)
 /*
  A regular expression to find all WBB formatted smileys.
  */
-var forumRegex = regexp.MustCompile(`<img.+src="[^"]+".+alt="([^"]+)".+>`)
+var forumRegex = regexp.MustCompile(`<img.*alt="([^"]+)".*>`)
 
 /*
  Converts the unicode version of a discord emoji to the text code variant
