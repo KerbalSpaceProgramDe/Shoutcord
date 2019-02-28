@@ -21,9 +21,10 @@ import (
 var emojiRegex = regexp.MustCompile(`<[a]?:([^:]+):\d+>`)
 
 /*
- A regular expression to find all WBB formatted smileys.
+ Regular expressions to find all WBB formatted smileys and links.
  */
 var forumRegex = regexp.MustCompile(`<img.*alt="([^"]+)".*>`)
+var linkRegex = regexp.MustCompile(`<a.*href="([^"]+)".*>.*<\/a>`)
 
 /*
  Converts the unicode version of a discord emoji to the text code variant
@@ -55,6 +56,10 @@ func DiscordToForumEmoji(input string) string {
 */
 func ForumToDiscordEmoji(input string, serverEmojis []*discordgo.Emoji) string {
     res := forumRegex.FindAllStringSubmatch(input, -1)
+    for _,item := range res {
+        input = strings.Replace(input, item[0], item[1], -1)
+    }
+    res = linkRegex.FindAllStringSubmatch(input, -1)
     for _,item := range res {
         input = strings.Replace(input, item[0], item[1], -1)
     }
