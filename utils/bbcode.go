@@ -20,7 +20,7 @@ import (
 func AddLinkCodes(input string) string {
     matches := RemoveDuplicatesUnordered(xurls.Strict.FindAllString(input, -1))
     for _, item := range matches {
-        input = strings.Replace(input, item, "[url]"+item+"[/url]", -1)
+        input = strings.Replace(input, item, "<a href=\""+item+"\" target=\"_blank\" rel=\"nofollow\">"+item+"</a>", -1)
     }
     return input
 }
@@ -28,7 +28,7 @@ func AddLinkCodes(input string) string {
 /*
  The regex that is used to detect links in the shoutbox messages
 */
-var links = regexp.MustCompile(`\[url(?:=(?:["']?)([^"'\]]+)(?:["']?))?]([^\[]+)\[\/url\]`)
+var links = regexp.MustCompile(`<a[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>`)
 
 /*
  Removes the BBCode links from shoutbox posts so the link render correctly in discord

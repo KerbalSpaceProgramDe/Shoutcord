@@ -47,14 +47,14 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Get a list of all attachments and transform them to their URLs
 	attachments := ""
 	for _, item := range m.Attachments {
-		attachments = attachments + "[url]" + item.URL + "[/url] "
+		attachments = attachments + item.URL + " "
 	}
 
 	// Replace the Kerbal Emojis with their forum version
 	message := emoji.DiscordToForumEmoji(m.ContentWithMentionsReplaced())
 
 	// Format links so they get displayed correctly in the shoutbox
-	message = utils.AddLinkCodes(message)
+	message = utils.AddLinkCodes(message + " " + attachments)
 
 	// Obtain the timestamp of the message
 	t, err := m.Timestamp.Parse()
@@ -67,7 +67,7 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		"discordId": cast.ToInt(m.Author.ID),
 		"username":  m.Author.Username,
 		"time":      t.Unix(),
-		"message":   message + " " + attachments,
+		"message":   message,
 	})
 	_, err = utils.PostHTTP(Settings.Endpoint+"/shoutbox", "application/json", bytes.NewBuffer(jsonValue),
 		Settings.ApiKey)

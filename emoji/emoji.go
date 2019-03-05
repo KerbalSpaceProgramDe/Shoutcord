@@ -18,13 +18,12 @@ import (
  A regular expression used to find all discord formatted emojis.
  i.e. <:textcode:id>
 */
-var emojiRegex = regexp.MustCompile(`<[a]?:([^:]+):\d+>`)
+var discordRegex = regexp.MustCompile(`<[a]?:([^:]+):\d+>`)
 
 /*
  Regular expressions to find all WBB formatted smileys and links.
  */
 var forumRegex = regexp.MustCompile(`<img.*alt="([^"]+)".*>`)
-var linkRegex = regexp.MustCompile(`<a.*href="([^"]+)".*>.*<\/a>`)
 
 /*
  Converts the unicode version of a discord emoji to the text code variant
@@ -33,7 +32,7 @@ func escapeDiscordEmoji(input string) string {
     for emoji := range discordEmojiSwapped {
         input = strings.Replace(input, emoji, ":"+discordEmojiSwapped[emoji]+":", -1)
     }
-    res := emojiRegex.FindAllStringSubmatch(input, -1)
+    res := discordRegex.FindAllStringSubmatch(input, -1)
     for _, item := range res {
         input = strings.Replace(input, item[0], ":"+item[1]+":", -1)
     }
@@ -56,10 +55,6 @@ func DiscordToForumEmoji(input string) string {
 */
 func ForumToDiscordEmoji(input string, serverEmojis []*discordgo.Emoji) string {
     res := forumRegex.FindAllStringSubmatch(input, -1)
-    for _,item := range res {
-        input = strings.Replace(input, item[0], item[1], -1)
-    }
-    res = linkRegex.FindAllStringSubmatch(input, -1)
     for _,item := range res {
         input = strings.Replace(input, item[0], item[1], -1)
     }
